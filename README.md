@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: suriya/s3-sync-action@master
+    - uses: exporo/s3-sync-action@main
       with:
         args: --acl public-read --follow-symlinks --delete
       env:
@@ -39,6 +39,36 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
+        SOURCE_DIR: 'public'      # optional: defaults to entire repository
+```
+
+
+```yaml
+name: Upload Website
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: arn:aws:iam::123456789100:role/my-github-actions-role
+        aws-region: us-east-1
+
+    - uses: exporo/s3-sync-action@main
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
         AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
         SOURCE_DIR: 'public'      # optional: defaults to entire repository
 ```
